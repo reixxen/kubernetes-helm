@@ -1,0 +1,62 @@
+---
+user:
+  is_admin: true
+  name: "Иван Петров"
+  age: 30
+  position: "Разработчик"
+  skills:
+    - skill:
+        name: "Программирование"
+        level: 5
+        description: |
+          Опыт работы с различными языками программирования.
+          Участие в крупных проектах.
+          Знание лучших практик разработки.
+    - skill:
+        name: "Английский язык"
+        level: 4
+        description: |
+          Свободное чтение технической документации.
+          Умение вести деловую переписку.
+          Базовые навыки разговорной речи.
+  residence:
+    country: "Россия"
+    city: "Москва"
+    street: "Ленина"
+    house_number: "15"
+    apartment_number: "42"
+  pets:
+    - pet:
+        name: "Барсик"
+        breed: "Сиамская"
+        can_meow: true
+    - pet:
+        name: "Рекс"
+        breed: "Овчарка"
+        can_meow: false
+
+another_user:
+  is_admin: false
+  name: "Мария Сидорова"
+  age: 25
+  position: "Дизайнер"
+  skills:
+    - skill:
+        name: "Графический дизайн"
+        level: 4
+        description: "Опыт работы с Adobe Photoshop и Illustrator"
+    - skill:
+        name: "Веб-дизайн"
+        level: 3
+        description: "Создание адаптивных интерфейсов"
+  residence:
+    country: "Россия"
+    city: "Санкт-Петербург"
+    street: "Невский проспект"
+    house_number: "100"
+    apartment_number: "15"
+  pets:
+    - pet:
+        name: "Мурка"
+        breed: "Дворовая"
+        can_meow: true
