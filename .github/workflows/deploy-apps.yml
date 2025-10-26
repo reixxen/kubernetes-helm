@@ -7,6 +7,7 @@ on:
       - 'apps/short-app/**'
       - 'apps/short-api/**'
       - 'apps/conv-app/**'
+      - 'apps/conv-api/**'
     tags:
       - 'v*'
   pull_request:
@@ -15,6 +16,7 @@ on:
       - 'apps/short-app/**'
       - 'apps/short-api/**'
       - 'apps/conv-app/**'
+      - 'apps/conv-api/**'
 
 env:
   REGISTRY: ghcr.io
@@ -29,7 +31,7 @@ jobs:
 
     strategy:
       matrix:
-        app: [short-app, short-api, conv-app]
+        app: [short-app, short-api, conv-app, conv-api]
         include:
           - app: short-app
             context: ./apps/short-app
@@ -37,6 +39,8 @@ jobs:
             context: ./apps/short-api
           - app: conv-app
             context: ./apps/conv-app
+          - app: conv-api
+            context: ./apps/conv-api
 
     steps:
       - name: Checkout repository
