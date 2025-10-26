@@ -1,0 +1,7 @@
+# services:
+#   webapp:
+#     image: reixxen/conv-app:1.2
+#     ports:
+#     - 8080:80
+#     environment:
+#       VITE_DOMAIN: https://google.com

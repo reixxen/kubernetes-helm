@@ -1,0 +1,31 @@
+.app {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 20px;
+}
+
+#root {
+  width: 100%;
+}
+
+.uploader {
+	width: 100%;
+}
+
+.options {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 20px;
+}
+
+.header {
+	font-size: 20px;
+	line-height: 20px;
+	margin-bottom: 10px;
+}
+
+.result {
+	width: 100%;
+}
