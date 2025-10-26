@@ -1,4 +1,4 @@
-import { ImageType } from 'contracts/converter';
+import { ImageType } from 'src/converter';
 
 export class PayloadDto {
 	width: number;

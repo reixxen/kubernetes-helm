@@ -1,6 +1,6 @@
 import { BadRequestException, Controller, Post, Query, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { GenerateImages, ImageType } from 'contracts/converter';
+import { GenerateImages, ImageType } from 'src/converter';
 import { RMQService } from 'nestjs-rmq';
 import { FilesService } from './files.service';
 import { FileElementResponse } from './interfaces/file-element.reposonse';
