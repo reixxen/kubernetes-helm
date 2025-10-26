@@ -1,11 +1,11 @@
-FROM node:16-alpine as build
+FROM node:18-alpine as build
 WORKDIR /opt/app
 ADD *.json ./
 RUN npm install
 ADD . .
 RUN npm run build api
 
-FROM node:14-alpine
+FROM node:18-alpine
 WORKDIR /opt/app
 ADD package.json ./
 RUN npm install --only=prod
