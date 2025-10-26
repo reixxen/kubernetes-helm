@@ -6,11 +6,11 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      components: rabbitmq
+      component: rabbitmq
   template:
     metadata:
       labels:
-        components: rabbitmq
+        component: rabbitmq
     spec:
       containers:
       - name: rabbitmq
@@ -27,11 +27,24 @@ spec:
           name: amqp
         - containerPort: 15672
           name: management
+        - containerPort: 25672
+          name: cluster
         env:
           - name: RABBITMQ_DEFAULT_USER
-            value: SEED_USERNAME
+            valueFrom:
+              secretKeyRef:
+                name: rabbitmq-secret
+                key: username
           - name: RABBITMQ_DEFAULT_PASS
-            value: SEED_USER_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: rabbitmq-secret
+                key: password
+          - name: RABBITMQ_ERLANG_COOKIE
+            valueFrom:
+              secretKeyRef:
+                name: rabbitmq-secret
+                key: erlangCookie
         volumeMounts:
           - name: rabbitmq-data
             mountPath: /var/lib/rabbitmq
