@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: conv-app-port
+spec:
+  type: NodePort
+  selector:
+    components: frontend
+  ports:
+    # for VM - kubectl port-forward service/conv-app-port 8080:80
+  - port: 80
+    targetPort: 80
+    nodePort: 31200
