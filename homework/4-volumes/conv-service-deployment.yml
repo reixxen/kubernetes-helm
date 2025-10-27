@@ -1,20 +1,20 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: conv-api-deployment
+  name: conv-service-deployment
 spec:
   replicas: 1
   selector:
     matchLabels:
-      component: conv-api
+      component: conv-service
   template:
     metadata:
       labels:
-        component: conv-api
+        component: conv-service
     spec:
       containers:
-      - name: conv-api
-        image: ghcr.io/reixxen/conv-api:latest
+      - name: conv-service
+        image: ghcr.io/reixxen/conv-service:latest
         resources:
           limits:
             memory: "500Mi"
@@ -42,20 +42,5 @@ spec:
                 key: password
           - name: AMQP_HOSTNAME
             value: rabbitmq-clusterip
-          - name: SEEDUSERNAME
-            valueFrom:
-              secretKeyRef:
-                name: conv-seed-secret
-                key: SEEDUSERNAME
-          - name: SEEDUSER_PASSWORD
-            valueFrom:
-              secretKeyRef:
-                name: conv-seed-secret
-                key: SEEDUSER_PASSWORD
-        volumeMounts:
-          - name: uploads-volume
-            mountPath: /opt/app/uploads
-      volumes:
-        - name: uploads-volume
-          persistentVolumeClaim:
-            claimName: conv-api-pvc
+          - name: AMQP_QUEUE
+            value: converter-queue

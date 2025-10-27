@@ -1,180 +1,132 @@
-# Volumes и Secrets в Kubernetes
+# Conv App — Kubernetes Deployment
 
-Развертывание [RabbitMQ](https://hub.docker.com/_/rabbitmq) с persistence и Conv API для обработки изображений с использованием Kubernetes Volumes и Secrets для безопасного хранения данных.
+Этот проект включает три сервиса:
 
-- **RabbitMQ**: Message broker с persistence и management UI
-- **Conv API**: Микросервис для обработки изображений
-- **Persistent Volumes**: Хранение данных RabbitMQ и загруженных изображений
-- **Secrets**: Безопасное хранение учетных данных и конфигурации
+| Сервис | Назначение |
+|--------|------------|
+| conv-app | UI фронтенд (Vite SPA) |
+| conv-api | Backend API |
+| conv-service | Сервис для обработки сообщений из очереди |
+| RabbitMQ | Брокер сообщений |
 
-## Объекты
+Фронт доступен по домену, API проксируется через `/api` внутри Ingress.
 
-1. **RabbitMQ**
-    - Image: rabbitmq:3.13-management
-    - Ports: 5672 (AMQP), 15672 (Management), 25672 (Cluster)
-    - Persistence: /var/lib/rabbitmq
-    - Secrets: username, password, Erlang cookie
+---
 
-2. **Conv API**
-    - Image: ghcr.io/reixxen/conv-api:latest
-    - Port: 3000
-    - Persistence: /opt/app/uploads (для хранения изображений)
-    - Secrets: AMQP connection parameters
+## Состав разворачиваемой инфраструктуры
 
-## Файлы конфигурации
+- Kubernetes Deployments для всех сервисов
+- ClusterIP Service к каждому компоненту
+- Ingress для публичного доступа
+- PVC для хранения данных:
+  - uploads для API
+  - данные RabbitMQ
+- Secrets:
+  - AMQP конфигурация
+  - SEED пользователь (username/password)
+- ConfigMap для `VITE_DOMAIN`
 
-### Secrets
+---
 
-- `rabbitmq-secret.yml` - Учетные данные RabbitMQ
-- `conv-api-secret.yml` - Параметры подключения к RabbitMQ
+## Требования
 
-### Persistent Volumes
+Перед запуском убедитесь, что установлены:
 
-- `rabbitmq-pv.yml` - PV для данных RabbitMQ
-- `rabbitmq-pvc.yml` - PVC для RabbitMQ
-- `conv-api-pv.yml` - PV для загруженных изображений
-- `conv-api-pvc.yml` - PVC для Conv API
+- kubectl
+- minikube или Kubernetes cluster
+- ingress controller (например nginx)
 
-### Deployments & Services
+Для Minikube:
 
-- `rabbitmq-deployment.yml` - Deployment RabbitMQ
-
-- `rabbitmq-service.yml` - Service RabbitMQ
-
-- `conv-api-deployment.yml` - Deployment Conv API
-
-- `conv-api-service.yml` - Service Conv API
-
-## Развертывание
-
-1. Создание Secrets
-
-    ```bash
-    # RabbitMQ credentials
-    echo -n "SEED_USER_NAME" | base64
-    echo -n "SEED_USER_PASSWORD" | base64
-    # Erlang Cookie
-    openssl rand -base64 24 | tr -d '\n' | base64
-
-    # Conv API environment variables
-    echo -n "conversion-exchange" | base64
-    echo -n "rabbitmq-clusterip" | base64
-
-    # Применить Secrets
-    kubectl apply -f rabbitmq-secret.yml
-    kubectl apply -f conv-api-secret.yml
-    ```
-
-2. Создание Persistent Volumes и Claims
-
-    ```bash
-    # RabbitMQ persistence
-    kubectl apply -f rabbitmq-pv.yml
-    kubectl apply -f rabbitmq-pvc.yml
-
-    # Conv API persistence
-    kubectl apply -f conv-api-pv.yml
-    kubectl apply -f conv-api-pvc.yml
-    ```
-
-3. Развертывание RabbitMQ
-
-    ```bash
-    kubectl apply -f rabbitmq-deployment.yml
-    kubectl apply -f rabbitmq-service.yml
-    ```
-
-4. Развертывание Conv API
-
-    ```bash
-    kubectl apply -f conv-api-deployment.yml
-    kubectl apply -f conv-api-service.yml
-    ```
-
-### Проверка развертывания
-
-#### Проверить статус всех компонентов
-
-```bash
-kubectl get pods,svc,pv,pvc,secret
+```sh
+minikube start
+minikube addons enable ingress
 ```
 
-#### Проверить конкретные компоненты
+## Проверка
 
-```bash
-# Проверить статус подов
-kubectl get pods -l component=rabbitmq
-kubectl get pods -l component=conv-api
-
-# Проверить логи
-kubectl logs -l component=rabbitmq
-kubectl logs -l component=conv-api
-
-# Проверить PVC
-kubectl get pvc
-
-# Проверить сервисы
-kubectl get svc rabbitmq-clusterip
-kubectl get svc conv-api-clusterip
+```sh
+kubectl get pods -n ingress-nginx
 ```
 
-## Доступ к сервисам
+Должны появиться pods контроллера.
 
-### RabbitMQ Management UI
+## 🚀 Установка
 
-```bash
+Примените манифесты:
+
+```sh
+kubectl apply -f .
+```
+
+Дождитесь готовности pod’ов:
+
+```sh
+kubectl get pods
+```
+
+## 🌍 Доступ к сервисам
+
+Для Minikube получаем IP:
+
+```sh
+minikube ip
+```
+
+Потом добавляем запись в /etc/hosts
+
+```sh
+sudo nano /etc/hosts
+```
+
+Добавляем:
+
+```sh
+<MINIKUBE-IP> conv.test
+```
+
+Открываем приложение:
+
+- <http://conv.test>
+- <http://conv.test/api>
+
+## 🐰 Доступ к RabbitMQ Management
+
+```sh
 kubectl port-forward svc/rabbitmq-clusterip 15672:15672
 ```
 
-Открыть в браузере: <http://localhost:15672>
+После этого открыть:
 
-### Conv API
+- <http://localhost:15672>
 
-```bash
-kubectl port-forward svc/conv-api-clusterip 3000:3000
+Логин и пароль берём из rabbitmq-secret
+
+## Хранение данных
+
+| Сервис | Путь | PVC |
+|--------|------------| ----- |
+| conv-api uploads | `/opt/app/uploads` | conv-api-pvc |
+| RabbitMQ data | `/var/lib/rabbitmq` | rabbitmq-pvc |
+
+Данные сохраняются при перезапуске pod.
+
+## 🔁 Перезапуск сервиса
+
+Например для conv-api:
+
+```sh
+kubectl rollout restart deployment/conv-api-deployment
 ```
 
-Доступно по: <http://localhost:3000>
+Проверка логов:
 
-## Переменные окружения
-
-### RabbitMQ
-
-- `RABBITMQ_DEFAULT_USER` - Из secret: rabbitmq-secret
-
-- `RABBITMQ_DEFAULT_PASS` - Из secret: rabbitmq-secret
-
-- `RABBITMQ_ERLANG_COOKIE` - Из secret: rabbitmq-secret
-
-### Conv API
-
-- `AMQP_EXCHANGE` - Название exchange для сообщений
-
-- `AMQP_USER` - Username для подключения к RabbitMQ
-
-- `AMQP_PASSWORD` - Password для подключения к RabbitMQ
-
-- `AMQP_HOSTNAME` - Hostname сервиса RabbitMQ
-
-## Мониторинг и отладка
-
-### Проверить подключение Conv API к RabbitMQ
-
-```bash
-kubectl logs -l component=conv-api | grep -i "rabbitmq\|amqp"
+```sh
+kubectl logs -f deployment/conv-api-deployment
 ```
 
-### Проверить состояние очередей в RabbitMQ
+## 🧹 Удаление всех ресурсов
 
-```bash
-# Через port-forward зайти в Management UI
-# или использовать CLI
-kubectl exec -it <rabbitmq-pod> -- rabbitmqctl list_queues
-```
-
-### Проверить использование volumes
-
-```bash
-kubectl describe pvc rabbitmq-pvc
-kubectl describe pvc conv-api-pvc
+```sh
+kubectl delete -f .
 ```
