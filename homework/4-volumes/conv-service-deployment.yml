@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: conv-service-deployment
 spec:
-  replicas: 1
+  replicas: 5
   selector:
     matchLabels:
       component: conv-service
