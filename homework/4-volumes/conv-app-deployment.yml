@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: conv-app-deployment
+spec:
+  selector:
+    matchLabels:
+      component: conv-app
+  template:
+    metadata:
+      name: conv-app
+      labels:
+        component: conv-app
+    spec:
+      containers:
+      - name: conv-app
+        image: ghcr.io/reixxen/conv-app:latest
+        resources:
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+        ports:
+          - containerPort: 80
+        envFrom:
+          - configMapRef:
+              name: conv-app-config
