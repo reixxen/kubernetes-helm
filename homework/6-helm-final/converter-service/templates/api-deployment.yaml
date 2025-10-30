@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.api.name }}-deployment
+spec:
+  replicas: {{ .Values.api.replicaCount }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/component: {{ .Values.api.name }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/component: {{ .Values.api.name }}
+    spec:
+      containers:
+        - name: {{ .Values.api.containerName }}
+          image: "{{ .Values.api.image.registry }}:{{ .Values.api.image.tag }}"
+          imagePullPolicy: {{ .Values.api.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.api.containerPort.http }}
+              protocol: TCP
+          resources: {{ toYaml .Values.api.resources | nindent 12 }}
+          env:
+            - name: AMQP_EXCHANGE
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Values.api.name }}-config
+                  key: AMQP_EXCHANGE
+            - name: AMQP_HOSTNAME
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Values.api.name }}-config
+                  key: AMQP_HOSTNAME
+            - name: AMQP_USER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.api.name }}-secret
+                  key: AMQP_USER
+            - name: AMQP_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.api.name }}-secret
+                  key: AMQP_PASSWORD
+          volumeMounts:
+            - name: {{ .Values.api.name }}-data
+              mountPath: "/opt/app/data"
+      volumes:
+        - name: {{ .Values.api.name }}-data
+          persistentVolumeClaim:
+            claimName: {{ .Values.api.name }}-pvc

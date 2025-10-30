@@ -1,0 +1,9 @@
+name: converter-service
+sources: []
+version: 0.1.0
+description: A Helm chart for Image Converter application stack
+maintainers:
+  - name: reixxen
+apiVersion: v2
+appVersion: 1.16.0
+type: application

@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Values.api.name }}-config
+data:
+  AMQP_EXCHANGE: {{ .Values.api.config.amqpExchange | quote }}
+  AMQP_HOSTNAME: {{ .Values.api.config.amqpHostname | quote }}
