@@ -7,7 +7,7 @@ import { FileElementResponse } from './interfaces/file-element.reposonse';
 import { MFile } from './interfaces/mfile.class';
 import { PayloadDto } from './interfaces/payload.dto';
 
-@Controller()
+@Controller('api')
 export class ApiController {
 	constructor(
 		private readonly filesService: FilesService,
