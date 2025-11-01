@@ -2,6 +2,10 @@
 
 ## Installation
 
+### Install ingress
+
+Follow instructions: <https://yandex.cloud/ru/docs/managed-kubernetes/operations/applications/ingress-nginx?utm_referrer=https%3A%2F%2Fwww.google.ru%2F&utm_referrer=https%3A%2F%2Fyndx.auth.yandex.cloud%2F>
+
 ### Install helm-secrets plugin
 
 ```sh
