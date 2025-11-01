@@ -1,0 +1,139 @@
+app:
+  name: app
+  replicaCount: 1
+  image:
+    registry: ghcr.io/reixxen/conv-app
+    tag: "latest"
+    pullPolicy: IfNotPresent
+  containerName: app
+  containerPort:
+    http: 80
+  resources:
+    limits:
+      cpu: 500m
+      memory: 1Gi
+    requests:
+      cpu: 250m
+      memory: 512Mi
+  service:
+    type: ClusterIP
+    ports:
+      http: 80
+  config:
+    viteDomain: "http://converter.local"
+
+api:
+  name: api
+  replicaCount: 1
+  image:
+    registry: ghcr.io/reixxen/conv-api
+    tag: "sha-a5b1efd"
+    pullPolicy: IfNotPresent
+  containerName: api
+  containerPort:
+    http: 3000
+  resources:
+    limits:
+      cpu: 200m
+      memory: 500Mi
+    requests:
+      cpu: 100m
+      memory: 250Mi
+  service:
+    type: ClusterIP
+    ports:
+      http: 3000
+  config:
+    amqpExchange: "converter"
+    amqpHostname: "rabbitmq-service"
+  persistence:
+    size: 10Gi
+    accessMode: ReadWriteOnce
+    storageClass: ""
+
+imageProcessor:
+  name: image-processor
+  replicaCount: 1
+  image:
+    registry: ghcr.io/reixxen/conv-service
+    tag: "latest"
+    pullPolicy: IfNotPresent
+  containerName: image-processor
+  containerPort:
+    http: 3000
+  resources:
+    limits:
+      cpu: 200m
+      memory: 500Mi
+    requests:
+      cpu: 100m
+      memory: 250Mi
+  service:
+    type: ClusterIP
+    ports:
+      http: 3000
+  config:
+    amqpExchange: "converter"
+    amqpHostname: "rabbitmq-service"
+    amqpQueue: "converter-queue"
+  persistence:
+    size: 10Gi
+    accessMode: ReadWriteOnce
+    storageClass: ""
+
+ingress:
+  className: "nginx"
+  annotations:
+    nginx.ingress.kubernetes.io/add-base-url: "true"
+  hosts:
+    - host: "converter.local"
+      paths:
+        - path: /
+          pathType: Prefix
+          backend:
+            service:
+              name: "app-service"
+              port:
+                number: 80
+        - path: /api
+          pathType: Prefix
+          backend:
+            service:
+              name: "api-service"
+              port:
+                number: 3000
+        - path: /uploads
+          pathType: Prefix
+          backend:
+            service:
+              name: "api-service"
+              port:
+                number: 3000
+
+rabbitmq:
+  name: rabbitmq
+  replicaCount: 1
+  image:
+    registry: rabbitmq
+    tag: "3.13-management"
+    pullPolicy: IfNotPresent
+  containerName: rabbitmq
+  containerPort:
+    amqp: 5672
+    management: 15672
+  resources:
+    limits:
+      cpu: 500m
+      memory: 1Gi
+    requests:
+      cpu: 250m
+      memory: 512Mi
+  service:
+    type: ClusterIP
+    ports:
+      amqp: 5672
+      management: 15672
+  persistence:
+    size: 10Gi
+    accessMode: ReadWriteOnce
+    storageClass: ""
